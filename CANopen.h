@@ -76,7 +76,8 @@ extern "C" {
 
 
     #include "CO_driver.h"
-    #include "CO_OD.h"
+    #include "CO_OD_HCAN1.h"
+		#include "CO_OD_HCAN3.h"
     #include "CO_SDO.h"
     #include "CO_Emergency.h"
     #include "CO_NMT_Heartbeat.h"
@@ -141,7 +142,7 @@ typedef struct{
 
 
 /** CANopen object */
-    extern CO_t *CO;
+extern CO_t *CO[2];
 
 
 /**
@@ -177,7 +178,8 @@ typedef struct{
 CO_ReturnError_t CO_init(
         int32_t                 CANbaseAddress,
         uint8_t                 nodeId,
-        uint16_t                bitRate);
+        uint16_t                bitRate,
+		uint8_t					coIndex);
 
 
 /**
@@ -185,7 +187,7 @@ CO_ReturnError_t CO_init(
  *
  * @param CANbaseAddress Address of the CAN module, passed to CO_CANmodule_init().
  */
-void CO_delete(int32_t CANbaseAddress);
+void CO_delete(int32_t CANbaseAddress, uint8_t coIndex);
 
 
 /**
@@ -208,7 +210,8 @@ void CO_delete(int32_t CANbaseAddress);
 CO_NMT_reset_cmd_t CO_process(
         CO_t                   *CO,
         uint16_t                timeDifference_ms,
-        uint16_t               *timerNext_ms);
+        uint16_t               *timerNext_ms,
+		uint8_t 				coIndex);
 
 
 /**
@@ -224,7 +227,8 @@ CO_NMT_reset_cmd_t CO_process(
  */
 bool_t CO_process_SYNC_RPDO(
         CO_t                   *CO,
-        uint32_t                timeDifference_us);
+        uint32_t                timeDifference_us,
+		uint8_t					coIndex);
 
 
 /**
