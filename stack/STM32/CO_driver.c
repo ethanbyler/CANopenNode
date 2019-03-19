@@ -49,7 +49,6 @@
 #include "stm32f4xx.h"
 #include "CO_driver.h"
 #include "CO_Emergency.h"
-//#include "led.h"
 #include "CAN.h"
 #include <string.h>
 
@@ -57,29 +56,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private variable ----------------------------------------------------------*/
 /* Private function ----------------------------------------------------------*/
-//static void CO_CANClkSetting (void);
-//static void CO_CANconfigGPIO (void);
 static void CO_CANsendToModule(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer, uint8_t transmit_mailbox);
-
-//void InitCanLeds(void)
-//{
-//    vLED_InitRCC();
-//    vLED_InitPort();
-//}
-//
-//void CanLedsSet(eCoLeds led)
-//{
-//    if (led & eCoLed_Green)
-//        vLED_OnPB14Led();
-//    else
-//        vLED_OffPB14Led();
-//
-//    if (led & eCoLed_Red)
-//        vLED_OnPB15Led();
-//    else
-//        vLED_OffPB15Led();
-//
-//}
 
 /*******************************************************************************
    Macro and Constants - CAN module registers
@@ -93,7 +70,7 @@ void CO_CANsetConfigurationMode(int32_t CANbaseAddress){
 
 /******************************************************************************/
 void CO_CANsetNormalMode(CO_CANmodule_t *CANmodule){
-    CANmodule->CANnormal = true;
+	CANmodule->CANnormal = true;
 }
 
 
@@ -107,121 +84,51 @@ CO_ReturnError_t CO_CANmodule_init(
         uint16_t                txSize,
         uint16_t                CANbitRate)
 {
-//    CAN_InitTypeDef CAN_InitStruct;
-//    CAN_FilterInitTypeDef CAN_FilterInitStruct;
-//    NVIC_InitTypeDef NVIC_InitStructure;
-    int i;
-//    uint8_t result;
+	int i;
 
-    /* verify arguments */
-    if(CANmodule==NULL || rxArray==NULL || txArray==NULL){
-        return CO_ERROR_ILLEGAL_ARGUMENT;
-    }
+	/* verify arguments */
+	if(CANmodule==NULL || rxArray==NULL || txArray==NULL){
+		return CO_ERROR_ILLEGAL_ARGUMENT;
+	}
 
-    CANmodule->CANbaseAddress = CANbaseAddress;
-    CANmodule->rxArray = rxArray;
-    CANmodule->rxSize = rxSize;
-    CANmodule->txArray = txArray;
-    CANmodule->txSize = txSize;
-    CANmodule->CANnormal = false;
-    CANmodule->useCANrxFilters = false;
-    CANmodule->bufferInhibitFlag = 0;
-    CANmodule->firstCANtxMessage = 1;
-    CANmodule->CANtxCount = 0;
-    CANmodule->errOld = 0;
-    CANmodule->em = 0;
+	CANmodule->CANbaseAddress = CANbaseAddress;
+	CANmodule->rxArray = rxArray;
+	CANmodule->rxSize = rxSize;
+	CANmodule->txArray = txArray;
+	CANmodule->txSize = txSize;
+	CANmodule->CANnormal = false;
+	CANmodule->useCANrxFilters = false;
+	CANmodule->bufferInhibitFlag = 0;
+	CANmodule->firstCANtxMessage = 1;
+	CANmodule->CANtxCount = 0;
+	CANmodule->errOld = 0;
+	CANmodule->em = 0;
 
-		// Replaced magic number 0x03 by (CAN_IT_TME | CAN_IT_FMP0) JvL
-//    CAN_ITConfig(CANmodule->CANbaseAddress, (CAN_IT_TME | CAN_IT_FMP0), DISABLE);
+	for (i = 0; i < rxSize; i++)
+	{
+		CANmodule->rxArray[i].ident = 0;
+		CANmodule->rxArray[i].pFunct = 0;
+	}
+	for (i = 0; i < txSize; i++)
+	{
+		CANmodule->txArray[i].bufferFull = 0;
+	}
 
-    for (i = 0; i < rxSize; i++)
-    {
-        CANmodule->rxArray[i].ident = 0;
-        CANmodule->rxArray[i].pFunct = 0;
-    }
-    for (i = 0; i < txSize; i++)
-    {
-        CANmodule->txArray[i].bufferFull = 0;
-    }
-
-        /* CO - VJ Changed */
-        /* Setting Clock of CAN HW */
-//        CO_CANClkSetting();
-
-        /* GPIO Config for CAN */
-//        CO_CANconfigGPIO();
-
-    /* Init CAN controler */
-//    CAN_DeInit(CANmodule->CANbaseAddress);
-//    CAN_StructInit(&CAN_InitStruct);
-//    switch (CANbitRate)
-//    {
-//        case 1000: CAN_InitStruct.CAN_Prescaler = 2;
-//            break;
-//        case 500: CAN_InitStruct.CAN_Prescaler = 4;
-//            break;
-//        default:
-//        case 250: CAN_InitStruct.CAN_Prescaler = 8;
-//            break;
-//        case 125: CAN_InitStruct.CAN_Prescaler = 16;
-//            break;
-//        case 100: CAN_InitStruct.CAN_Prescaler = 20;
-//            break;
-//        case 50: CAN_InitStruct.CAN_Prescaler = 40;
-//            break;
-//        case 20: CAN_InitStruct.CAN_Prescaler = 100;
-//            break;
-//        case 10: CAN_InitStruct.CAN_Prescaler = 200;
-//            break;
-//    }
-//    CAN_InitStruct.CAN_SJW = CAN_SJW_4tq;     // changed by VJ, old value = CAN_SJW_1tq;
-//    CAN_InitStruct.CAN_BS1 = CAN_BS1_12tq;    // changed by VJ, old value = CAN_BS1_3tq;
-//    CAN_InitStruct.CAN_BS2 = CAN_BS2_5tq;     // changed by VJ, old value = CAN_BS2_2tq;
-//    CAN_InitStruct.CAN_NART = ENABLE;   // No Automatic retransmision
-
-   /* CO - Changed VJ Start */
-//    result = CAN_Init(CANmodule->CANbaseAddress, &CAN_InitStruct);
-//    if (result == 0)
-//        {
-//       // TRACE_DEBUG_WP("res=%d\n\r", result);
-//       return CO_ERROR_TIMEOUT;  /* CO- Return Init failed */
-//    }
-        /* CO - Changed VJ End */
-
-//    memset(&CAN_FilterInitStruct, 0, sizeof (CAN_FilterInitStruct));
-//    CAN_FilterInitStruct.CAN_FilterNumber = 0;
-//    CAN_FilterInitStruct.CAN_FilterIdHigh = 0;
-//    CAN_FilterInitStruct.CAN_FilterIdLow = 0;
-//    CAN_FilterInitStruct.CAN_FilterMaskIdHigh = 0;
-//    CAN_FilterInitStruct.CAN_FilterMaskIdLow = 0;
-//    CAN_FilterInitStruct.CAN_FilterFIFOAssignment = 0; // pouzivame jen FIFO0
-//    CAN_FilterInitStruct.CAN_FilterMode = CAN_FilterMode_IdMask;
-//    CAN_FilterInitStruct.CAN_FilterScale = CAN_FilterScale_32bit;
-//    CAN_FilterInitStruct.CAN_FilterActivation = ENABLE;
-//    CAN_FilterInit(&CAN_FilterInitStruct);
-
-
-//    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-//    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//    // preruseni od prijimace == interrupts from receiver
-//    NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_INTERRUPTS;
-//    NVIC_Init(&NVIC_InitStructure);
-//    // preruseni od vysilace == interrupts from transmitter
-//    NVIC_InitStructure.NVIC_IRQChannel = CAN1_TX_INTERRUPTS;
-//    NVIC_Init(&NVIC_InitStructure);
-
-   // CAN_OperatingModeRequest(CANmodule->CANbaseAddress, CAN_Mode_Normal); // Not needed as after init Can_init functions puts the controller in normal mode - VJ
-
-//    CAN_ITConfig(CANmodule->CANbaseAddress, 0x03, ENABLE);
-
-    return CO_ERROR_NO;
+	return CO_ERROR_NO;
 }
 
 /******************************************************************************/
 void CO_CANmodule_disable(CO_CANmodule_t *CANmodule)
 {
-//    CAN_DeInit(CANmodule->CANbaseAddress);
+	if (CANmodule->CANbaseAddress == CAN_Info.hcan1->Instance) {
+	  HAL_CAN_DeInit(CAN_Info.hcan1);
+	}
+	else if (CANmodule->CANbaseAddress == CAN_Info.hcan2->Instance) {
+	  HAL_CAN_DeInit(CAN_Info.hcan2);
+	}
+	else if (CANmodule->CANbaseAddress == CAN_Info.hcan3->Instance) {
+	  HAL_CAN_DeInit(CAN_Info.hcan3);
+	}
 }
 
 /******************************************************************************/
@@ -234,38 +141,38 @@ CO_ReturnError_t CO_CANrxBufferInit(
         void                   *object,
         void                  (*pFunct)(void *object, CO_CANrxMsg_t *message))
 {
-    CO_CANrx_t *rxBuffer;
-	//CanRxMsg *rxBuffer;
-    uint16_t RXF, RXM;
+	CO_CANrx_t *rxBuffer;
+//CanRxMsg *rxBuffer;
+	uint16_t RXF, RXM;
 
-    //safety
-    if (!CANmodule || !object || !pFunct || index >= CANmodule->rxSize)
-    {
-        return CO_ERROR_ILLEGAL_ARGUMENT;
-    }
+	//safety
+	if (!CANmodule || !object || !pFunct || index >= CANmodule->rxSize)
+	{
+		return CO_ERROR_ILLEGAL_ARGUMENT;
+	}
 
-    //buffer, which will be configured
-    rxBuffer = CANmodule->rxArray + index;
+	//buffer, which will be configured
+	rxBuffer = CANmodule->rxArray + index;
 
-    //Configure object variables
-    rxBuffer->object = object;
-    rxBuffer->pFunct = pFunct;
+	//Configure object variables
+	rxBuffer->object = object;
+	rxBuffer->pFunct = pFunct;
 
 
-    //CAN identifier and CAN mask, bit aligned with CAN module registers
-    RXF = (ident & 0x07FF) << 2;
-    if (rtr) RXF |= 0x02;
-    RXM = (mask & 0x07FF) << 2;
-    RXM |= 0x02;
+	//CAN identifier and CAN mask, bit aligned with CAN module registers
+	RXF = (ident & 0x07FF) << 2;
+	if (rtr) RXF |= 0x02;
+	RXM = (mask & 0x07FF) << 2;
+	RXM |= 0x02;
 
-    //configure filter and mask
-    if (RXF != rxBuffer->ident || RXM != rxBuffer->mask)
-    {
-        rxBuffer->ident = RXF;
-        rxBuffer->mask = RXM;
-    }
+	//configure filter and mask
+	if (RXF != rxBuffer->ident || RXM != rxBuffer->mask)
+	{
+		rxBuffer->ident = RXF;
+		rxBuffer->mask = RXM;
+	}
 
-    return CO_ERROR_NO;
+	return CO_ERROR_NO;
 }
 
 /******************************************************************************/
@@ -277,100 +184,102 @@ CO_CANtx_t *CO_CANtxBufferInit(
         uint8_t                 noOfBytes,
         int8_t                  syncFlag)
 {
-    uint32_t TXF;
-    CO_CANtx_t *buffer;
+	uint32_t TXF;
+	CO_CANtx_t *buffer;
 
-    //safety
-    if (!CANmodule || CANmodule->txSize <= index) return 0;
+	//safety
+	if (!CANmodule || CANmodule->txSize <= index) return 0;
 
-    //get specific buffer
-    buffer = &CANmodule->txArray[index];
+	//get specific buffer
+	buffer = &CANmodule->txArray[index];
 
-    //CAN identifier, bit aligned with CAN module registers
+	//CAN identifier, bit aligned with CAN module registers
 
-    TXF = ident << 21;
-    TXF &= 0xFFE00000;
-    if (rtr) TXF |= 0x02;
+	TXF = ident << 21;
+	TXF &= 0xFFE00000;
+	if (rtr) TXF |= 0x02;
 
-    //write to buffer
-    buffer->TxHeader.StdId = TXF;
-    buffer->TxHeader.DLC = noOfBytes;
-    buffer->bufferFull = 0;
-    buffer->syncFlag = syncFlag ? 1 : 0;
+	//write to buffer
+	buffer->TxHeader.StdId = TXF;
+	buffer->TxHeader.DLC = noOfBytes;
+	buffer->bufferFull = 0;
+	buffer->syncFlag = syncFlag ? 1 : 0;
 
-    return buffer;
+	return buffer;
 }
 
 int8_t getFreeTxBuff(CO_CANmodule_t *CANmodule)
 {
-    uint8_t txBuff = CAN_TXMAILBOX_0;
-	
-    //if (CAN_TransmitStatus(CANmodule->CANbaseAddress, txBuff) == CAN_TxStatus_Ok)
-    for (txBuff = CAN_TXMAILBOX_0; txBuff <= (CAN_TXMAILBOX_2 + 1); txBuff++)
-    {
-        switch (txBuff)
-        {
-        case (CAN_TXMAILBOX_0 ):
-            if (CANmodule->CANbaseAddress->TSR & CAN_TSR_TME0 )
-                return txBuff;
-            else
-                break;
-        case (CAN_TXMAILBOX_1 ):
-            if (CANmodule->CANbaseAddress->TSR & CAN_TSR_TME1 )
-                return txBuff;
-            else
-                break;
-        case (CAN_TXMAILBOX_2 ):
-            if (CANmodule->CANbaseAddress->TSR & CAN_TSR_TME2 )
-                return txBuff;
-            else
-                break;
-				default:
-						break;
-        }
-    }
-    return -1;
+	uint8_t txBuff = CAN_TXMAILBOX_0;
+
+	//if (CAN_TransmitStatus(CANmodule->CANbaseAddress, txBuff) == CAN_TxStatus_Ok)
+	for (txBuff = CAN_TXMAILBOX_0; txBuff <= (CAN_TXMAILBOX_2 + 1); txBuff++)
+	{
+		switch (txBuff)
+		{
+		case (CAN_TXMAILBOX_0 ):
+    	if (CANmodule->CANbaseAddress->TSR & CAN_TSR_TME0 )
+       	return txBuff;
+      else
+       	break;
+		case (CAN_TXMAILBOX_1 ):
+      if (CANmodule->CANbaseAddress->TSR & CAN_TSR_TME1 )
+       	return txBuff;
+      else
+       	break;
+		case (CAN_TXMAILBOX_2 ):
+      if (CANmodule->CANbaseAddress->TSR & CAN_TSR_TME2 )
+       	return txBuff;
+      else
+       	break;
+		default:
+			break;
+		}
+	}
+	return -1;
 }
 
 /******************************************************************************/
 CO_ReturnError_t CO_CANsend(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer)
 {
-    CO_ReturnError_t err = CO_ERROR_NO;
-    int8_t txBuff;
+	CO_ReturnError_t err = CO_ERROR_NO;
+	int8_t txBuff;
 
-    /* Verify overflow */
-    if(buffer->bufferFull)
-    {
-        if(!CANmodule->firstCANtxMessage)/* don't set error, if bootup message is still on buffers */
-            CO_errorReport((CO_EM_t*)CANmodule->em, CO_EM_CAN_TX_OVERFLOW, CO_EMC_CAN_OVERRUN, 0);
-        err = CO_ERROR_TX_OVERFLOW;
-    }
+	/* Verify overflow */
+	if(buffer->bufferFull)
+	{
+		if(!CANmodule->firstCANtxMessage)/* don't set error, if bootup message is still on buffers */
+			CO_errorReport((CO_EM_t*)CANmodule->em, CO_EM_CAN_TX_OVERFLOW, CO_EMC_CAN_OVERRUN, 0);
+		err = CO_ERROR_TX_OVERFLOW;
+	}
 
-    CO_LOCK_CAN_SEND();
-    //if CAN TB buffer0 is free, copy message to it
-     txBuff = getFreeTxBuff(CANmodule);
-   // #error change this - use only one buffer for transmission - see generic driver
-    if(txBuff != -1 && CANmodule->CANtxCount == 0)
-    {
-        CANmodule->bufferInhibitFlag = buffer->syncFlag;
-        CO_CANsendToModule(CANmodule, buffer, txBuff);
-    }
-    //if no buffer is free, message will be sent by interrupt
-    else
-    {
-        buffer->bufferFull = 1;
-        CANmodule->CANtxCount++;
-        if (CANmodule->CANbaseAddress == CAN_Info.hcan1->Instance) {
-        	HAL_CAN_ActivateNotification(CAN_Info.hcan1, CAN_IT_TX_MAILBOX_EMPTY);
-        }
-        else if (CANmodule->CANbaseAddress == CAN_Info.hcan2->Instance) {
-        	HAL_CAN_ActivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
-        }
-//        HAL_CAN_ActivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
-    }
-    CO_UNLOCK_CAN_SEND();
+	CO_LOCK_CAN_SEND();
+	//if CAN TB buffer0 is free, copy message to it
+	txBuff = getFreeTxBuff(CANmodule);
+	// #error change this - use only one buffer for transmission - see generic driver
+	if(txBuff != -1 && CANmodule->CANtxCount == 0)
+	{
+		CANmodule->bufferInhibitFlag = buffer->syncFlag;
+		CO_CANsendToModule(CANmodule, buffer, txBuff);
+	}
+	//if no buffer is free, message will be sent by interrupt
+	else
+	{
+		buffer->bufferFull = 1;
+		CANmodule->CANtxCount++;
+		if (CANmodule->CANbaseAddress == CAN_Info.hcan1->Instance) {
+			HAL_CAN_ActivateNotification(CAN_Info.hcan1, CAN_IT_TX_MAILBOX_EMPTY);
+		}
+		else if (CANmodule->CANbaseAddress == CAN_Info.hcan2->Instance) {
+			HAL_CAN_ActivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
+		}
+		else if (CANmodule->CANbaseAddress == CAN_Info.hcan3->Instance) {
+			HAL_CAN_ActivateNotification(CAN_Info.hcan3, CAN_IT_TX_MAILBOX_EMPTY);
+		}
+	}
+	CO_UNLOCK_CAN_SEND();
 
-    return err;
+	return err;
 }
 
 /******************************************************************************/
@@ -383,50 +292,51 @@ void CO_CANclearPendingSyncPDOs(CO_CANmodule_t *CANmodule)
 /******************************************************************************/
 void CO_CANverifyErrors(CO_CANmodule_t *CANmodule)
 {
-   uint32_t err;
-   CO_EM_t* em = (CO_EM_t*)CANmodule->em;
+	uint32_t err;
+	CO_EM_t* em = (CO_EM_t*)CANmodule->em;
 
-   err = CANmodule->CANbaseAddress->ESR;
-   // if(CAN_REG(CANmodule->CANbaseAddress, C_INTF) & 4) err |= 0x80;
+	err = CANmodule->CANbaseAddress->ESR;
+	// if(CAN_REG(CANmodule->CANbaseAddress, C_INTF) & 4) err |= 0x80;
 
-   if(CANmodule->errOld != err)
-   {
-      CANmodule->errOld = err;
+	if(CANmodule->errOld != err)
+	{
+		CANmodule->errOld = err;
 
-      //CAN RX bus overflow
-      if(CANmodule->CANbaseAddress->RF0R & 0x08)
-      {
-         CO_errorReport(em, CO_EM_CAN_RXB_OVERFLOW, CO_EMC_CAN_OVERRUN, err);
-         CANmodule->CANbaseAddress->RF0R &=~0x08;//clear bits
-      }
+		//CAN RX bus overflow
+		if(CANmodule->CANbaseAddress->RF0R & 0x08)
+		{
+			CO_errorReport(em, CO_EM_CAN_RXB_OVERFLOW, CO_EMC_CAN_OVERRUN, err);
+			CANmodule->CANbaseAddress->RF0R &=~0x08;//clear bits
+		}
 
-      //CAN TX bus off
-      if(err & 0x04) CO_errorReport(em, CO_EM_CAN_TX_BUS_OFF, CO_EMC_BUS_OFF_RECOVERED, err);
-      else           CO_errorReset(em, CO_EM_CAN_TX_BUS_OFF, err);
+		//CAN TX bus off
+		if(err & 0x04)
+		  CO_errorReport(em, CO_EM_CAN_TX_BUS_OFF, CO_EMC_BUS_OFF_RECOVERED, err);
+		else
+		  CO_errorReset(em, CO_EM_CAN_TX_BUS_OFF, err);
 
-      //CAN TX or RX bus passive
-      if(err & 0x02)
-      {
-         if(!CANmodule->firstCANtxMessage) CO_errorReport(em, CO_EM_CAN_TX_BUS_PASSIVE, CO_EMC_CAN_PASSIVE, err);
-      }
-      else
-      {
-        // int16_t wasCleared;
-        /* wasCleared = */CO_errorReset(em, CO_EM_CAN_TX_BUS_PASSIVE, err);
-        /* if(wasCleared == 1) */CO_errorReset(em, CO_EM_CAN_TX_OVERFLOW, err);
-      }
+		//CAN TX or RX bus passive
+		if(err & 0x02)
+		{
+			if(!CANmodule->firstCANtxMessage) CO_errorReport(em, CO_EM_CAN_TX_BUS_PASSIVE, CO_EMC_CAN_PASSIVE, err);
+		}
+		else
+		{
+			CO_errorReset(em, CO_EM_CAN_TX_BUS_PASSIVE, err);
+			CO_errorReset(em, CO_EM_CAN_TX_OVERFLOW, err);
+		}
 
 
-      //CAN TX or RX bus warning
-      if(err & 0x01)
-      {
-         CO_errorReport(em, CO_EM_CAN_BUS_WARNING, CO_EMC_NO_ERROR, err);
-      }
-      else
-      {
-         CO_errorReset(em, CO_EM_CAN_BUS_WARNING, err);
-      }
-   }
+		//CAN TX or RX bus warning
+		if(err & 0x01)
+		{
+			CO_errorReport(em, CO_EM_CAN_BUS_WARNING, CO_EMC_NO_ERROR, err);
+		}
+		else
+		{
+			CO_errorReset(em, CO_EM_CAN_BUS_WARNING, err);
+		}
+	}
 }
 
 /******************************************************************************/
@@ -458,8 +368,17 @@ void CO_CANinterrupt_Rx(CO_CANmodule_t *CANmodule)
 		for (index = 0; index < 8; index++)
 			CAN1_RxMsg.data[index] = CAN_Info.Rx.CAN_2.FIFO_0.Data[index];
 	}
+	else if (CANmodule->CANbaseAddress == CAN_Info.hcan3->Instance) {
+		CAN1_RxMsg.ident = CAN_Info.Rx.CAN_3.FIFO_0.RxHeader.StdId;
+		CAN1_RxMsg.ExtId = CAN_Info.Rx.CAN_3.FIFO_0.RxHeader.ExtId;
+		CAN1_RxMsg.IDE = CAN_Info.Rx.CAN_3.FIFO_0.RxHeader.IDE;
+		CAN1_RxMsg.RTR = CAN_Info.Rx.CAN_3.FIFO_0.RxHeader.RTR;
+		CAN1_RxMsg.DLC = CAN_Info.Rx.CAN_3.FIFO_0.RxHeader.DLC;
+		CAN1_RxMsg.FMI = CAN_Info.Rx.CAN_3.FIFO_0.RxHeader.FilterMatchIndex;
 
-//	CAN_Receive(CANmodule->CANbaseAddress, CAN_FilterFIFO0, &CAN1_RxMsg);
+		for (index = 0; index < 8; index++)
+			CAN1_RxMsg.data[index] = CAN_Info.Rx.CAN_3.FIFO_0.Data[index];
+	}
 
 	uint8_t msgMatched = 0;
 	CO_CANrx_t *msgBuff = CANmodule->rxArray;
@@ -482,48 +401,47 @@ void CO_CANinterrupt_Rx(CO_CANmodule_t *CANmodule)
 // Interrupt from Transeiver
 void CO_CANinterrupt_Tx(CO_CANmodule_t *CANmodule)
 {
+  uint16_t i;             /* index of transmitting message */
+	int8_t txBuff;
+	/* Clear interrupt flag */
+	if (CANmodule->CANbaseAddress == CAN_Info.hcan1->Instance) {
+		HAL_CAN_DeactivateNotification(CAN_Info.hcan1, CAN_IT_TX_MAILBOX_EMPTY);
+	}
+	else if (CANmodule->CANbaseAddress == CAN_Info.hcan2->Instance) {
+		HAL_CAN_DeactivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
+	}
+	else if (CANmodule->CANbaseAddress == CAN_Info.hcan3->Instance) {
+		HAL_CAN_DeactivateNotification(CAN_Info.hcan3, CAN_IT_TX_MAILBOX_EMPTY);
+	}
+	/* First CAN message (bootup) was sent successfully */
+	CANmodule->firstCANtxMessage = 0;
+	/* clear flag from previous message */
+	CANmodule->bufferInhibitFlag = 0;
+	/* Are there any new messages waiting to be send */
+	if(CANmodule->CANtxCount > 0)
+	{
+		/* first buffer */
+		CO_CANtx_t *buffer = CANmodule->txArray;
+		/* search through whole array of pointers to transmit message buffers. */
+		for(i = CANmodule->txSize; i > 0; i--)
+		{
+			/* if message buffer is full, send it. */
+			if(buffer->bufferFull)
+			{
+				buffer->bufferFull = 0;
+				CANmodule->CANtxCount--;
+				txBuff = getFreeTxBuff(CANmodule);    //VJ
+				/* Copy message to CAN buffer */
+				CANmodule->bufferInhibitFlag = buffer->syncFlag;
+				CO_CANsendToModule(CANmodule, buffer, txBuff);
+				break;                      /* exit for loop */
+			}
+			buffer++;
+		}/* end of for loop */
 
-     int8_t txBuff;
-    /* Clear interrupt flag */
-//    CAN_ITConfig(CANmodule->CANbaseAddress, CAN_IT_TME, DISABLE); // Transmit mailbox empty interrupt
-     if (CANmodule->CANbaseAddress == CAN_Info.hcan1->Instance) {
-    	 HAL_CAN_DeactivateNotification(CAN_Info.hcan1, CAN_IT_TX_MAILBOX_EMPTY);
-     }
-     else if (CANmodule->CANbaseAddress == CAN_Info.hcan2->Instance) {
-    	 HAL_CAN_DeactivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
-     }
-//     HAL_CAN_DeactivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
-    /* First CAN message (bootup) was sent successfully */
-    CANmodule->firstCANtxMessage = 0;
-    /* clear flag from previous message */
-    CANmodule->bufferInhibitFlag = 0;
-    /* Are there any new messages waiting to be send */
-    if(CANmodule->CANtxCount > 0)
-    {
-        uint16_t i;             /* index of transmitting message */
-
-        /* first buffer */
-        CO_CANtx_t *buffer = CANmodule->txArray;
-        /* search through whole array of pointers to transmit message buffers. */
-        for(i = CANmodule->txSize; i > 0; i--)
-        {
-            /* if message buffer is full, send it. */
-            if(buffer->bufferFull)
-            {
-                buffer->bufferFull = 0;
-                CANmodule->CANtxCount--;
-    txBuff = getFreeTxBuff(CANmodule);    //VJ
-                /* Copy message to CAN buffer */
-                CANmodule->bufferInhibitFlag = buffer->syncFlag;
-                CO_CANsendToModule(CANmodule, buffer, txBuff);
-                break;                      /* exit for loop */
-            }
-            buffer++;
-        }/* end of for loop */
-
-        /* Clear counter if no more messages */
-        if(i == 0) CANmodule->CANtxCount = 0;
-    }
+		/* Clear counter if no more messages */
+		if(i == 0) CANmodule->CANtxCount = 0;
+	}
 }
 
 /******************************************************************************/
@@ -537,59 +455,26 @@ static void CO_CANsendToModule(CO_CANmodule_t *CANmodule, CO_CANtx_t *buffer, ui
 {
 
 	CO_CANtx_t      CAN1_TxMsg;
-    int i;
+	int i;
 
-    /*Test code, VJ using Drivers Start*/
-    CAN1_TxMsg.TxHeader.IDE = CAN_ID_STD;
-    CAN1_TxMsg.TxHeader.DLC = buffer->TxHeader.DLC;
-    for (i = 0; i < 8; i++) CAN1_TxMsg.data[i] = buffer->data[i];
-    CAN1_TxMsg.TxHeader.StdId = ((buffer->TxHeader.StdId) >> 21);
-    CAN1_TxMsg.TxHeader.RTR = CAN_RTR_DATA;
+	CAN1_TxMsg.TxHeader.IDE = CAN_ID_STD;
+	CAN1_TxMsg.TxHeader.DLC = buffer->TxHeader.DLC;
+	for (i = 0; i < 8; i++) CAN1_TxMsg.data[i] = buffer->data[i];
+	CAN1_TxMsg.TxHeader.StdId = ((buffer->TxHeader.StdId) >> 21);
+	CAN1_TxMsg.TxHeader.RTR = CAN_RTR_DATA;
 
-    if (CANmodule->CANbaseAddress == CAN_Info.hcan1->Instance) {
-    	CAN_SendMessage(CAN_Info.hcan1, &CAN1_TxMsg.TxHeader, CAN1_TxMsg.data);
-    	HAL_CAN_ActivateNotification(CAN_Info.hcan1, CAN_IT_TX_MAILBOX_EMPTY);
-    }
-    else if (CANmodule->CANbaseAddress == CAN_Info.hcan2->Instance) {
-    	CAN_SendMessage(CAN_Info.hcan2, &CAN1_TxMsg.TxHeader, CAN1_TxMsg.data);
-    	HAL_CAN_ActivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
-    }
-
-//    CAN_SendMessage(CAN_Info.hcan2, &CAN1_TxMsg.TxHeader, CAN1_TxMsg.data);
-//    HAL_CAN_ActivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
-
-//    CAN_Transmit(CANmodule->CANbaseAddress, &CAN1_TxMsg);
-//    CAN_ITConfig(CANmodule->CANbaseAddress, CAN_IT_TME, ENABLE);
-
-    /*Test code, VJ using Drivers End*/
+	if (CANmodule->CANbaseAddress == CAN_Info.hcan1->Instance) {
+		CAN_SendMessage(CAN_Info.hcan1, &CAN1_TxMsg.TxHeader, CAN1_TxMsg.data);
+		HAL_CAN_ActivateNotification(CAN_Info.hcan1, CAN_IT_TX_MAILBOX_EMPTY);
+	}
+	else if (CANmodule->CANbaseAddress == CAN_Info.hcan2->Instance) {
+		CAN_SendMessage(CAN_Info.hcan2, &CAN1_TxMsg.TxHeader, CAN1_TxMsg.data);
+		HAL_CAN_ActivateNotification(CAN_Info.hcan2, CAN_IT_TX_MAILBOX_EMPTY);
+	}
+	else if (CANmodule->CANbaseAddress == CAN_Info.hcan3->Instance) {
+		CAN_SendMessage(CAN_Info.hcan3, &CAN1_TxMsg.TxHeader, CAN1_TxMsg.data);
+		HAL_CAN_ActivateNotification(CAN_Info.hcan3, CAN_IT_TX_MAILBOX_EMPTY);
+	}
 
 }
 
-/* CO- VJ Changed Start */
-/******************************************************************************/
-//static void CO_CANClkSetting (void)
-//{
-//    RCC_APB2PeriphClockCmd(CLOCK_GPIO_CAN | RCC_APB2Periph_AFIO, ENABLE);
-//    RCC_APB1PeriphClockCmd(CLOCK_CAN, ENABLE);
-//}
-//
-///******************************************************************************/
-//static void CO_CANconfigGPIO (void)
-//{
-//
-//    GPIO_InitTypeDef GPIO_InitStructure;
-//
-//        /* Remap */
-//    GPIO_PinRemapConfig(GPIO_Remapping_CAN, GPIO_CAN_Remap_State);
-//    /* Configure CAN pin: RX */
-//    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_CAN_RX;
-//    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-//    GPIO_Init(GPIO_CAN, &GPIO_InitStructure);
-//    /* Configure CAN pin: TX */
-//    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_CAN_TX;
-//    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-//    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-//    GPIO_Init(GPIO_CAN, &GPIO_InitStructure);
-//
-//}
-/* CO- VJ Change End */

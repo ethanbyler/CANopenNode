@@ -64,7 +64,7 @@
 
 /* Global variables ***********************************************************/
     extern const CO_OD_entry_t CO_OD[CO_OD_NoOfElements];  /* Object Dictionary array */
-    extern const CO_OD_entry_t CO_OD_2[CO_OD_2_NoOfElements];  /* Object Dictionary array */
+    extern const CO_OD_entry_t CO_OD_HCAN3[CO_OD_2_NoOfElements];  /* Object Dictionary array */
     static CO_t COO[2];
     CO_t *CO[] = {NULL, NULL};
 
@@ -100,29 +100,45 @@
 
 /* Indexes for CANopenNode message objects ************************************/
     #ifdef ODL_consumerHeartbeatTime_arrayLength
-        #define CO_NO_HB_CONS   ODL_consumerHeartbeatTime_arrayLength
+        #define CO_NO_HB_CONS   coIndex==0 ? ODL_consumerHeartbeatTime_arrayLength : ODL_consumerHeartbeatTime_arrayLength_hcan3
     #else
         #define CO_NO_HB_CONS   0
     #endif
 
     #define CO_RXCAN_NMT       0                                      /*  index for NMT message */
     #define CO_RXCAN_SYNC      1                                      /*  index for SYNC message */
-    #define CO_RXCAN_RPDO     (CO_RXCAN_SYNC+CO_NO_SYNC)              /*  start index for RPDO messages */
-    #define CO_RXCAN_SDO_SRV  (CO_RXCAN_RPDO+CO_NO_RPDO)              /*  start index for SDO server message (request) */
-    #define CO_RXCAN_SDO_CLI  (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER)     /*  start index for SDO client message (response) */
-    #define CO_RXCAN_CONS_HB  (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT)     /*  start index for Heartbeat Consumer messages */
+		#define CO_RXCAN_RPDO     coIndex==0 ? (CO_RXCAN_SYNC+CO_NO_SYNC) : (CO_RXCAN_SYNC+CO_NO_SYNC_HCAN3)             /*  start index for RPDO messages */
+    #define CO_RXCAN_SDO_SRV  coIndex==0 ? (CO_RXCAN_RPDO+CO_NO_RPDO) : (CO_RXCAN_RPDO+CO_NO_RPDO_HCAN3)              /*  start index for SDO server message (request) */
+    #define CO_RXCAN_SDO_CLI  coIndex==0 ? (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER) : (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER_HCAN3)     /*  start index for SDO client message (response) */
+    #define CO_RXCAN_CONS_HB  coIndex==0 ? (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT) : (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT_HCAN3)     /*  start index for Heartbeat Consumer messages */
     /* total number of received CAN messages */
-    #define CO_RXCAN_NO_MSGS (1+CO_NO_SYNC+CO_NO_RPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+CO_NO_HB_CONS)
+    #define CO_RXCAN_NO_MSGS  coIndex==0 ? (1+CO_NO_SYNC+CO_NO_RPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+CO_NO_HB_CONS) : \
+                                           (1+CO_NO_SYNC_HCAN3+CO_NO_RPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+CO_NO_HB_CONS)
+//    #define CO_RXCAN_RPDO     (CO_RXCAN_SYNC+CO_NO_SYNC)              /*  start index for RPDO messages */
+//    #define CO_RXCAN_SDO_SRV  (CO_RXCAN_RPDO+CO_NO_RPDO)              /*  start index for SDO server message (request) */
+//    #define CO_RXCAN_SDO_CLI  (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER)     /*  start index for SDO client message (response) */
+//    #define CO_RXCAN_CONS_HB  (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT)     /*  start index for Heartbeat Consumer messages */
+//    /* total number of received CAN messages */
+//    #define CO_RXCAN_NO_MSGS (1+CO_NO_SYNC+CO_NO_RPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+CO_NO_HB_CONS)
 
     #define CO_TXCAN_NMT       0                                      /*  index for NMT master message */
-    #define CO_TXCAN_SYNC      CO_TXCAN_NMT+CO_NO_NMT_MASTER          /*  index for SYNC message */
-    #define CO_TXCAN_EMERG    (CO_TXCAN_SYNC+CO_NO_SYNC)              /*  index for Emergency message */
-    #define CO_TXCAN_TPDO     (CO_TXCAN_EMERG+CO_NO_EMERGENCY)        /*  start index for TPDO messages */
-    #define CO_TXCAN_SDO_SRV  (CO_TXCAN_TPDO+CO_NO_TPDO)              /*  start index for SDO server message (response) */
-    #define CO_TXCAN_SDO_CLI  (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER)     /*  start index for SDO client message (request) */
-    #define CO_TXCAN_HB       (CO_TXCAN_SDO_CLI+CO_NO_SDO_CLIENT)     /*  index for Heartbeat message */
+		#define CO_TXCAN_SYNC      coIndex==0 ? (CO_TXCAN_NMT+CO_NO_NMT_MASTER) : (CO_TXCAN_NMT+CO_NO_NMT_MASTER_HCAN3)          /*  index for SYNC message */
+    #define CO_TXCAN_EMERG     coIndex==0 ? (CO_TXCAN_SYNC+CO_NO_SYNC) : (CO_TXCAN_SYNC+CO_NO_SYNC_HCAN3)              /*  index for Emergency message */
+    #define CO_TXCAN_TPDO      coIndex==0 ? (CO_TXCAN_EMERG+CO_NO_EMERGENCY) : (CO_TXCAN_EMERG+CO_NO_EMERGENCY_HCAN3)        /*  start index for TPDO messages */
+    #define CO_TXCAN_SDO_SRV   coIndex==0 ? (CO_TXCAN_TPDO+CO_NO_TPDO) : (CO_TXCAN_TPDO+CO_NO_TPDO_HCAN3)              /*  start index for SDO server message (response) */
+    #define CO_TXCAN_SDO_CLI   coIndex==0 ? (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER) : (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER_HCAN3)     /*  start index for SDO client message (request) */
+    #define CO_TXCAN_HB       (CO_TXCAN_SDO_CLI+CO_NO_SDO_CLIENT_HCAN3)     /*  index for Heartbeat message */
     /* total number of transmitted CAN messages */
-    #define CO_TXCAN_NO_MSGS (CO_NO_NMT_MASTER+CO_NO_SYNC+CO_NO_EMERGENCY+CO_NO_TPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+1)
+    #define CO_TXCAN_NO_MSGS   coIndex==0 ? (CO_NO_NMT_MASTER+CO_NO_SYNC+CO_NO_EMERGENCY+CO_NO_TPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+1) : \
+																						(CO_NO_NMT_MASTER_HCAN3+CO_NO_SYNC_HCAN3+CO_NO_EMERGENCY_HCAN3+CO_NO_TPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+1)
+//    #define CO_TXCAN_SYNC      CO_TXCAN_NMT+CO_NO_NMT_MASTER          /*  index for SYNC message */
+//    #define CO_TXCAN_EMERG    (CO_TXCAN_SYNC+CO_NO_SYNC)              /*  index for Emergency message */
+//    #define CO_TXCAN_TPDO     (CO_TXCAN_EMERG+CO_NO_EMERGENCY)        /*  start index for TPDO messages */
+//    #define CO_TXCAN_SDO_SRV  (CO_TXCAN_TPDO+CO_NO_TPDO)              /*  start index for SDO server message (response) */
+//    #define CO_TXCAN_SDO_CLI  (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER)     /*  start index for SDO client message (request) */
+//    #define CO_TXCAN_HB       (CO_TXCAN_SDO_CLI+CO_NO_SDO_CLIENT)     /*  index for Heartbeat message */
+//    /* total number of transmitted CAN messages */
+//    #define CO_TXCAN_NO_MSGS (CO_NO_NMT_MASTER+CO_NO_SYNC+CO_NO_EMERGENCY+CO_NO_TPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+1)
 
 
 #ifdef CO_USE_GLOBALS
@@ -382,8 +398,8 @@ CO_ReturnError_t CO_init(
             COB_IDServerToClient = CO_CAN_ID_TSDO + nodeId;
         }else{
         	if (coIndex == 1) {
-        		COB_IDClientToServer = OD_SDOServerParameter2[i].COB_IDClientToServer;
-        		COB_IDServerToClient = OD_SDOServerParameter2[i].COB_IDServerToClient;
+        		COB_IDClientToServer = OD_SDOServerParameter_hcan3[i].COB_IDClientToServer;
+        		COB_IDServerToClient = OD_SDOServerParameter_hcan3[i].COB_IDServerToClient;
         	} else {
         		COB_IDClientToServer = OD_SDOServerParameter[i].COB_IDClientToServer;
             	COB_IDServerToClient = OD_SDOServerParameter[i].COB_IDServerToClient;
@@ -396,7 +412,7 @@ CO_ReturnError_t CO_init(
                 COB_IDServerToClient,
                 OD_H1200_SDO_SERVER_PARAM+i,
                 i==0 ? 0 : CO[coIndex]->SDO[0],
-                coIndex==0 ? &CO_OD[0] : &CO_OD_2[0],
+                coIndex==0 ? &CO_OD[0] : &CO_OD_HCAN3[0],
                 CO_OD_NoOfElements,
                 CO_SDO_ODExtensions[coIndex],
                 nodeId,
@@ -413,11 +429,11 @@ CO_ReturnError_t CO_init(
             CO[coIndex]->em,
             CO[coIndex]->emPr,
             CO[coIndex]->SDO[0],
-			coIndex==0 ? &OD_errorStatusBits[0] : &OD_errorStatusBits2[0],
-		   coIndex==0 ? ODL_errorStatusBits_stringLength : ODL_errorStatusBits_stringLength2,
-			coIndex==0 ? &OD_errorRegister : &OD_errorRegister2,
-			coIndex==0 ? &OD_preDefinedErrorField[0] : &OD_preDefinedErrorField2[0],
-			coIndex==0 ? ODL_preDefinedErrorField_arrayLength : ODL_preDefinedErrorField_arrayLength2,
+						coIndex==0 ? &OD_errorStatusBits[0] : &OD_errorStatusBits_hcan3[0],
+						coIndex==0 ? ODL_errorStatusBits_stringLength : ODL_errorStatusBits_stringLength_hcan3,
+						coIndex==0 ? &OD_errorRegister : &OD_errorRegister_hcan3,
+						coIndex==0 ? &OD_preDefinedErrorField[0] : &OD_preDefinedErrorField_hcan3[0],
+						coIndex==0 ? ODL_preDefinedErrorField_arrayLength : ODL_preDefinedErrorField_arrayLength_hcan3,
             CO[coIndex]->CANmodule[0],
             CO_TXCAN_EMERG,
             CO_CAN_ID_EMERGENCY + nodeId);
@@ -456,9 +472,9 @@ CO_ReturnError_t CO_init(
             CO[coIndex]->em,
             CO[coIndex]->SDO[0],
            &CO[coIndex]->NMT->operatingState,
-		    coIndex==0 ? OD_COB_ID_SYNCMessage : OD_COB_ID_SYNCMessage2,
-		    coIndex==0 ? OD_communicationCyclePeriod : OD_communicationCyclePeriod2,
-		    coIndex==0 ? OD_synchronousCounterOverflowValue : OD_synchronousCounterOverflowValue2,
+		    		coIndex==0 ? OD_COB_ID_SYNCMessage : OD_COB_ID_SYNCMessage_hcan3,
+		    		coIndex==0 ? OD_communicationCyclePeriod : OD_communicationCyclePeriod_hcan3,
+		    		coIndex==0 ? OD_synchronousCounterOverflowValue : OD_synchronousCounterOverflowValue_hcan3,
             CO[coIndex]->CANmodule[0],
             CO_RXCAN_SYNC,
             CO[coIndex]->CANmodule[0],
@@ -480,8 +496,8 @@ CO_ReturnError_t CO_init(
                 nodeId,
                 ((i<4) ? (CO_CAN_ID_RPDO_1+i*0x100) : 0),
                 0,
-				coIndex==0 ? (CO_RPDOCommPar_t*) &OD_RPDOCommunicationParameter[i] : (CO_RPDOCommPar_t*) &OD_RPDOCommunicationParameter2[i],
-				coIndex==0 ? (CO_RPDOMapPar_t*) &OD_RPDOMappingParameter[i] : (CO_RPDOMapPar_t*) &OD_RPDOMappingParameter2[i],
+								coIndex==0 ? (CO_RPDOCommPar_t*) &OD_RPDOCommunicationParameter[i] : (CO_RPDOCommPar_t*) &OD_RPDOCommunicationParameter_hcan3[i],
+								coIndex==0 ? (CO_RPDOMapPar_t*) &OD_RPDOMappingParameter[i] : (CO_RPDOMapPar_t*) &OD_RPDOMappingParameter_hcan3[i],
                 OD_H1400_RXPDO_1_PARAM+i,
                 OD_H1600_RXPDO_1_MAPPING+i,
                 CANdevRx,
@@ -500,8 +516,8 @@ CO_ReturnError_t CO_init(
                 nodeId,
                 ((i<4) ? (CO_CAN_ID_TPDO_1+i*0x100) : 0),
                 0,
-				coIndex==0 ? (CO_TPDOCommPar_t*) &OD_TPDOCommunicationParameter[i] : (CO_TPDOCommPar_t*) &OD_TPDOCommunicationParameter2[i],
-				coIndex==0 ? (CO_TPDOMapPar_t*) &OD_TPDOMappingParameter[i] : (CO_TPDOMapPar_t*) &OD_TPDOMappingParameter2[i],
+								coIndex==0 ? (CO_TPDOCommPar_t*) &OD_TPDOCommunicationParameter[i] : (CO_TPDOCommPar_t*) &OD_TPDOCommunicationParameter_hcan3[i],
+								coIndex==0 ? (CO_TPDOMapPar_t*) &OD_TPDOMappingParameter[i] : (CO_TPDOMapPar_t*) &OD_TPDOMappingParameter_hcan3[i],
                 OD_H1800_TXPDO_1_PARAM+i,
                 OD_H1A00_TXPDO_1_MAPPING+i,
                 CO[coIndex]->CANmodule[0],
@@ -515,7 +531,7 @@ CO_ReturnError_t CO_init(
             CO[coIndex]->HBcons,
             CO[coIndex]->em,
             CO[coIndex]->SDO[0],
-			coIndex==0 ? &OD_consumerHeartbeatTime[0] : &OD_consumerHeartbeatTime2[0],
+						coIndex==0 ? &OD_consumerHeartbeatTime[0] : &OD_consumerHeartbeatTime_hcan3[0],
             CO_HBcons_monitoredNodes[coIndex],
             CO_NO_HB_CONS,
             CO[coIndex]->CANmodule[0],
@@ -649,16 +665,16 @@ CO_NMT_reset_cmd_t CO_process(
             CO->emPr,
             NMTisPreOrOperational,
             timeDifference_ms * 10,
-			coIndex==0 ? OD_inhibitTimeEMCY : OD_inhibitTimeEMCY2);
+						coIndex==0 ? OD_inhibitTimeEMCY : OD_inhibitTimeEMCY_hcan3);
 
 
     reset = CO_NMT_process(
             CO->NMT,
             timeDifference_ms,
-			coIndex==0 ? OD_producerHeartbeatTime : OD_producerHeartbeatTime2,
-			coIndex==0 ? OD_NMTStartup : OD_NMTStartup2,
-			coIndex==0 ? OD_errorRegister : OD_errorRegister2,
-			coIndex==0 ? OD_errorBehavior : OD_errorBehavior2,
+						coIndex==0 ? OD_producerHeartbeatTime : OD_producerHeartbeatTime_hcan3,
+						coIndex==0 ? OD_NMTStartup : OD_NMTStartup_hcan3,
+						coIndex==0 ? OD_errorRegister : OD_errorRegister_hcan3,
+						coIndex==0 ? OD_errorBehavior : OD_errorBehavior_hcan3,
             timerNext_ms);
 
 
@@ -680,7 +696,7 @@ bool_t CO_process_SYNC_RPDO(
     int16_t i;
     bool_t syncWas = false;
 
-    switch(CO_SYNC_process(CO->SYNC, timeDifference_us, coIndex==0 ? OD_synchronousWindowLength : OD_synchronousWindowLength2)){
+    switch(CO_SYNC_process(CO->SYNC, timeDifference_us, coIndex==0 ? OD_synchronousWindowLength : OD_synchronousWindowLength_hcan3)){
         case 1:     //immediately after the SYNC message
             syncWas = true;
             break;
