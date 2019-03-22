@@ -108,13 +108,13 @@
     #define CO_RXCAN_NMT       0                                      /*  index for NMT message */
     #define CO_RXCAN_SYNC      1                                      /*  index for SYNC message */
 
-    #define CO_RXCAN_RPDO     (coIndex==0 ? (CO_RXCAN_SYNC+CO_NO_SYNC) : (CO_RXCAN_SYNC+CO_NO_SYNC_HCAN3))             /*  start index for RPDO messages */
-    #define CO_RXCAN_SDO_SRV  (coIndex==0 ? (CO_RXCAN_RPDO+CO_NO_RPDO) : (CO_RXCAN_RPDO+CO_NO_RPDO_HCAN3))              /*  start index for SDO server message (request) */
-    #define CO_RXCAN_SDO_CLI  (coIndex==0 ? (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER) : (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER_HCAN3))     /*  start index for SDO client message (response) */
-    #define CO_RXCAN_CONS_HB  (coIndex==0 ? (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT) : (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT_HCAN3))     /*  start index for Heartbeat Consumer messages */
+    #define CO_RXCAN_RPDO(coIndex)     (coIndex==0 ? (CO_RXCAN_SYNC+CO_NO_SYNC) : (CO_RXCAN_SYNC+CO_NO_SYNC_HCAN3))             /*  start index for RPDO messages */
+    #define CO_RXCAN_SDO_SRV(coIndex)  (coIndex==0 ? (CO_RXCAN_RPDO(coIndex)+CO_NO_RPDO) : (CO_RXCAN_RPDO(coIndex)+CO_NO_RPDO_HCAN3))              /*  start index for SDO server message (request) */
+    #define CO_RXCAN_SDO_CLI(coIndex)  (coIndex==0 ? (CO_RXCAN_SDO_SRV(coIndex)+CO_NO_SDO_SERVER) : (CO_RXCAN_SDO_SRV(coIndex)+CO_NO_SDO_SERVER_HCAN3))     /*  start index for SDO client message (response) */
+    #define CO_RXCAN_CONS_HB(coIndex)  (coIndex==0 ? (CO_RXCAN_SDO_CLI(coIndex)+CO_NO_SDO_CLIENT) : (CO_RXCAN_SDO_CLI(coIndex)+CO_NO_SDO_CLIENT_HCAN3))     /*  start index for Heartbeat Consumer messages */
     /* total number of received CAN messages */
-    #define CO_RXCAN_NO_MSGS  (coIndex==0 ? (1+CO_NO_SYNC+CO_NO_RPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+CO_NO_HB_CONS) : \
-                                           (1+CO_NO_SYNC_HCAN3+CO_NO_RPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+CO_NO_HB_CONS))
+    #define CO_RXCAN_NO_MSGS(coIndex)  (coIndex==0 ? (1+CO_NO_SYNC+CO_NO_RPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+CO_NO_HB_CONS) : \
+                                             (1+CO_NO_SYNC_HCAN3+CO_NO_RPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+CO_NO_HB_CONS))
 //    #define CO_RXCAN_RPDO     (CO_RXCAN_SYNC+CO_NO_SYNC)              /*  start index for RPDO messages */
 //    #define CO_RXCAN_SDO_SRV  (CO_RXCAN_RPDO+CO_NO_RPDO)              /*  start index for SDO server message (request) */
 //    #define CO_RXCAN_SDO_CLI  (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER)     /*  start index for SDO client message (response) */
@@ -124,15 +124,15 @@
 
     #define CO_TXCAN_NMT       0                                      /*  index for NMT master message */
 
-    #define CO_TXCAN_SYNC      (coIndex==0 ? (CO_TXCAN_NMT+CO_NO_NMT_MASTER) : (CO_TXCAN_NMT+CO_NO_NMT_MASTER_HCAN3))          /*  index for SYNC message */
-    #define CO_TXCAN_EMERG     (coIndex==0 ? (CO_TXCAN_SYNC+CO_NO_SYNC) : (CO_TXCAN_SYNC+CO_NO_SYNC_HCAN3))              /*  index for Emergency message */
-    #define CO_TXCAN_TPDO      (coIndex==0 ? (CO_TXCAN_EMERG+CO_NO_EMERGENCY) : (CO_TXCAN_EMERG+CO_NO_EMERGENCY_HCAN3))        /*  start index for TPDO messages */
-    #define CO_TXCAN_SDO_SRV   (coIndex==0 ? (CO_TXCAN_TPDO+CO_NO_TPDO) : (CO_TXCAN_TPDO+CO_NO_TPDO_HCAN3))              /*  start index for SDO server message (response) */
-    #define CO_TXCAN_SDO_CLI   (coIndex==0 ? (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER) : (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER_HCAN3))     /*  start index for SDO client message (request) */
-    #define CO_TXCAN_HB        (coIndex==0 ? (CO_TXCAN_SDO_CLI+CO_NO_SDO_CLIENT) : (CO_TXCAN_SDO_CLI+CO_NO_SDO_CLIENT_HCAN3))     /*  index for Heartbeat message */
+    #define CO_TXCAN_SYNC(coIndex)      (coIndex==0 ? (CO_TXCAN_NMT+CO_NO_NMT_MASTER) : (CO_TXCAN_NMT+CO_NO_NMT_MASTER_HCAN3))          /*  index for SYNC message */
+    #define CO_TXCAN_EMERG(coIndex)     (coIndex==0 ? (CO_TXCAN_SYNC(coIndex)+CO_NO_SYNC) : (CO_TXCAN_SYNC(coIndex)+CO_NO_SYNC_HCAN3))              /*  index for Emergency message */
+    #define CO_TXCAN_TPDO(coIndex)      (coIndex==0 ? (CO_TXCAN_EMERG(coIndex)+CO_NO_EMERGENCY) : (CO_TXCAN_EMERG(coIndex)+CO_NO_EMERGENCY_HCAN3))        /*  start index for TPDO messages */
+    #define CO_TXCAN_SDO_SRV(coIndex)   (coIndex==0 ? (CO_TXCAN_TPDO(coIndex)+CO_NO_TPDO) : (CO_TXCAN_TPDO(coIndex)+CO_NO_TPDO_HCAN3))              /*  start index for SDO server message (response) */
+    #define CO_TXCAN_SDO_CLI(coIndex)   (coIndex==0 ? (CO_TXCAN_SDO_SRV(coIndex)+CO_NO_SDO_SERVER) : (CO_TXCAN_SDO_SRV(coIndex)+CO_NO_SDO_SERVER_HCAN3))     /*  start index for SDO client message (request) */
+    #define CO_TXCAN_HB(coIndex)        (coIndex==0 ? (CO_TXCAN_SDO_CLI(coIndex)+CO_NO_SDO_CLIENT) : (CO_TXCAN_SDO_CLI(coIndex)+CO_NO_SDO_CLIENT_HCAN3))     /*  index for Heartbeat message */
     /* total number of transmitted CAN messages */
-    #define CO_TXCAN_NO_MSGS   (coIndex==0 ? (CO_NO_NMT_MASTER+CO_NO_SYNC+CO_NO_EMERGENCY+CO_NO_TPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+1) : \
-                                          (CO_NO_NMT_MASTER_HCAN3+CO_NO_SYNC_HCAN3+CO_NO_EMERGENCY_HCAN3+CO_NO_TPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+1))
+    #define CO_TXCAN_NO_MSGS(coIndex)   (coIndex==0 ? (CO_NO_NMT_MASTER+CO_NO_SYNC+CO_NO_EMERGENCY+CO_NO_TPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+1) : \
+                                            (CO_NO_NMT_MASTER_HCAN3+CO_NO_SYNC_HCAN3+CO_NO_EMERGENCY_HCAN3+CO_NO_TPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+1))
 //    #define CO_TXCAN_SYNC      CO_TXCAN_NMT+CO_NO_NMT_MASTER          /*  index for SYNC message */
 //    #define CO_TXCAN_EMERG    (CO_TXCAN_SYNC+CO_NO_SYNC)              /*  index for Emergency message */
 //    #define CO_TXCAN_TPDO     (CO_TXCAN_EMERG+CO_NO_EMERGENCY)        /*  start index for TPDO messages */
@@ -276,8 +276,8 @@ CO_ReturnError_t CO_init(
     if(CO[coIndex] == NULL){    /* Use malloc only once */
         CO[coIndex] = &COO[coIndex];
         CO[coIndex]->CANmodule[0]                    = (CO_CANmodule_t *)    calloc(1, sizeof(CO_CANmodule_t));
-        CO_CANmodule_rxArray0[coIndex]               = (CO_CANrx_t *)        calloc(CO_RXCAN_NO_MSGS, sizeof(CO_CANrx_t));
-        CO_CANmodule_txArray0[coIndex]               = (CO_CANtx_t *)        calloc(CO_TXCAN_NO_MSGS, sizeof(CO_CANtx_t));
+        CO_CANmodule_rxArray0[coIndex]               = (CO_CANrx_t *)        calloc(CO_RXCAN_NO_MSGS(coIndex), sizeof(CO_CANrx_t));
+        CO_CANmodule_txArray0[coIndex]               = (CO_CANtx_t *)        calloc(CO_TXCAN_NO_MSGS(coIndex), sizeof(CO_CANtx_t));
         for(i=0; i<CO_NO_SDO_SERVER; i++){
             CO[coIndex]->SDO[i]                      = (CO_SDO_t *)          calloc(1, sizeof(CO_SDO_t));
         }
@@ -312,8 +312,8 @@ CO_ReturnError_t CO_init(
     }
 
     CO_memoryUsed = sizeof(CO_CANmodule_t)
-                  + sizeof(CO_CANrx_t) * CO_RXCAN_NO_MSGS
-                  + sizeof(CO_CANtx_t) * CO_TXCAN_NO_MSGS
+                  + sizeof(CO_CANrx_t) * CO_RXCAN_NO_MSGS(coIndex)
+                  + sizeof(CO_CANtx_t) * CO_TXCAN_NO_MSGS(coIndex)
                   + sizeof(CO_SDO_t) * CO_NO_SDO_SERVER
                   + sizeof(CO_OD_extension_t) * CO_OD_NoOfElements
                   + sizeof(CO_EM_t)
@@ -383,9 +383,9 @@ CO_ReturnError_t CO_init(
             CO[coIndex]->CANmodule[0],
             (CAN_TypeDef*)CANbaseAddress,
             CO_CANmodule_rxArray0[coIndex],
-            CO_RXCAN_NO_MSGS,
+            CO_RXCAN_NO_MSGS(coIndex),
             CO_CANmodule_txArray0[coIndex],
-            CO_TXCAN_NO_MSGS,
+            CO_TXCAN_NO_MSGS(coIndex),
             bitRate);
 
     if(err){CO_delete(CANbaseAddress, coIndex); return err;}
@@ -419,9 +419,9 @@ CO_ReturnError_t CO_init(
                 CO_SDO_ODExtensions[coIndex],
                 nodeId,
                 CO[coIndex]->CANmodule[0],
-                CO_RXCAN_SDO_SRV+i,
+                CO_RXCAN_SDO_SRV(coIndex)+i,
                 CO[coIndex]->CANmodule[0],
-                CO_TXCAN_SDO_SRV+i);
+                CO_TXCAN_SDO_SRV(coIndex)+i);
     }
 
     if(err){CO_delete(CANbaseAddress, coIndex); return err;}
@@ -437,7 +437,7 @@ CO_ReturnError_t CO_init(
 						coIndex==0 ? &OD_preDefinedErrorField[0] : &OD_preDefinedErrorField_hcan3[0],
 						coIndex==0 ? ODL_preDefinedErrorField_arrayLength : ODL_preDefinedErrorField_arrayLength_hcan3,
             CO[coIndex]->CANmodule[0],
-            CO_TXCAN_EMERG,
+            CO_TXCAN_EMERG(coIndex),
             CO_CAN_ID_EMERGENCY + nodeId);
 
     if(err){CO_delete(CANbaseAddress, coIndex); return err;}
@@ -452,7 +452,7 @@ CO_ReturnError_t CO_init(
             CO_RXCAN_NMT,
             CO_CAN_ID_NMT_SERVICE,
             CO[coIndex]->CANmodule[0],
-            CO_TXCAN_HB,
+            CO_TXCAN_HB(coIndex),
             CO_CAN_ID_HEARTBEAT + nodeId);
 
     if(err){CO_delete(CANbaseAddress, coIndex); return err;}
@@ -480,14 +480,14 @@ CO_ReturnError_t CO_init(
             CO[coIndex]->CANmodule[0],
             CO_RXCAN_SYNC,
             CO[coIndex]->CANmodule[0],
-            CO_TXCAN_SYNC);
+            CO_TXCAN_SYNC(coIndex));
 
     if(err){CO_delete(CANbaseAddress, coIndex); return err;}
 
 
     for(i=0; i<CO_NO_RPDO; i++){
         CO_CANmodule_t *CANdevRx = CO[coIndex]->CANmodule[0];
-        uint16_t CANdevRxIdx = CO_RXCAN_RPDO + i;
+        uint16_t CANdevRxIdx = CO_RXCAN_RPDO(coIndex) + i;
 
         err = CO_RPDO_init(
                 CO[coIndex]->RPDO[i],
@@ -523,7 +523,7 @@ CO_ReturnError_t CO_init(
                 OD_H1800_TXPDO_1_PARAM+i,
                 OD_H1A00_TXPDO_1_MAPPING+i,
                 CO[coIndex]->CANmodule[0],
-                CO_TXCAN_TPDO+i);
+                CO_TXCAN_TPDO(coIndex)+i);
 
         if(err){CO_delete(CANbaseAddress, coIndex); return err;}
     }
@@ -537,7 +537,7 @@ CO_ReturnError_t CO_init(
             CO_HBcons_monitoredNodes[coIndex],
             CO_NO_HB_CONS,
             CO[coIndex]->CANmodule[0],
-            CO_RXCAN_CONS_HB);
+            CO_RXCAN_CONS_HB(coIndex));
 
     if(err){CO_delete(CANbaseAddress, coIndex); return err;}
 
