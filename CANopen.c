@@ -107,13 +107,14 @@
 
     #define CO_RXCAN_NMT       0                                      /*  index for NMT message */
     #define CO_RXCAN_SYNC      1                                      /*  index for SYNC message */
-		#define CO_RXCAN_RPDO     coIndex==0 ? (CO_RXCAN_SYNC+CO_NO_SYNC) : (CO_RXCAN_SYNC+CO_NO_SYNC_HCAN3)             /*  start index for RPDO messages */
-    #define CO_RXCAN_SDO_SRV  coIndex==0 ? (CO_RXCAN_RPDO+CO_NO_RPDO) : (CO_RXCAN_RPDO+CO_NO_RPDO_HCAN3)              /*  start index for SDO server message (request) */
-    #define CO_RXCAN_SDO_CLI  coIndex==0 ? (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER) : (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER_HCAN3)     /*  start index for SDO client message (response) */
-    #define CO_RXCAN_CONS_HB  coIndex==0 ? (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT) : (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT_HCAN3)     /*  start index for Heartbeat Consumer messages */
+
+    #define CO_RXCAN_RPDO     (coIndex==0 ? (CO_RXCAN_SYNC+CO_NO_SYNC) : (CO_RXCAN_SYNC+CO_NO_SYNC_HCAN3))             /*  start index for RPDO messages */
+    #define CO_RXCAN_SDO_SRV  (coIndex==0 ? (CO_RXCAN_RPDO+CO_NO_RPDO) : (CO_RXCAN_RPDO+CO_NO_RPDO_HCAN3))              /*  start index for SDO server message (request) */
+    #define CO_RXCAN_SDO_CLI  (coIndex==0 ? (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER) : (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER_HCAN3))     /*  start index for SDO client message (response) */
+    #define CO_RXCAN_CONS_HB  (coIndex==0 ? (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT) : (CO_RXCAN_SDO_CLI+CO_NO_SDO_CLIENT_HCAN3))     /*  start index for Heartbeat Consumer messages */
     /* total number of received CAN messages */
-    #define CO_RXCAN_NO_MSGS  coIndex==0 ? (1+CO_NO_SYNC+CO_NO_RPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+CO_NO_HB_CONS) : \
-                                           (1+CO_NO_SYNC_HCAN3+CO_NO_RPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+CO_NO_HB_CONS)
+    #define CO_RXCAN_NO_MSGS  (coIndex==0 ? (1+CO_NO_SYNC+CO_NO_RPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+CO_NO_HB_CONS) : \
+                                           (1+CO_NO_SYNC_HCAN3+CO_NO_RPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+CO_NO_HB_CONS))
 //    #define CO_RXCAN_RPDO     (CO_RXCAN_SYNC+CO_NO_SYNC)              /*  start index for RPDO messages */
 //    #define CO_RXCAN_SDO_SRV  (CO_RXCAN_RPDO+CO_NO_RPDO)              /*  start index for SDO server message (request) */
 //    #define CO_RXCAN_SDO_CLI  (CO_RXCAN_SDO_SRV+CO_NO_SDO_SERVER)     /*  start index for SDO client message (response) */
@@ -122,15 +123,16 @@
 //    #define CO_RXCAN_NO_MSGS (1+CO_NO_SYNC+CO_NO_RPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+CO_NO_HB_CONS)
 
     #define CO_TXCAN_NMT       0                                      /*  index for NMT master message */
-		#define CO_TXCAN_SYNC      coIndex==0 ? (CO_TXCAN_NMT+CO_NO_NMT_MASTER) : (CO_TXCAN_NMT+CO_NO_NMT_MASTER_HCAN3)          /*  index for SYNC message */
-    #define CO_TXCAN_EMERG     coIndex==0 ? (CO_TXCAN_SYNC+CO_NO_SYNC) : (CO_TXCAN_SYNC+CO_NO_SYNC_HCAN3)              /*  index for Emergency message */
-    #define CO_TXCAN_TPDO      coIndex==0 ? (CO_TXCAN_EMERG+CO_NO_EMERGENCY) : (CO_TXCAN_EMERG+CO_NO_EMERGENCY_HCAN3)        /*  start index for TPDO messages */
-    #define CO_TXCAN_SDO_SRV   coIndex==0 ? (CO_TXCAN_TPDO+CO_NO_TPDO) : (CO_TXCAN_TPDO+CO_NO_TPDO_HCAN3)              /*  start index for SDO server message (response) */
-    #define CO_TXCAN_SDO_CLI   coIndex==0 ? (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER) : (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER_HCAN3)     /*  start index for SDO client message (request) */
-    #define CO_TXCAN_HB       (CO_TXCAN_SDO_CLI+CO_NO_SDO_CLIENT_HCAN3)     /*  index for Heartbeat message */
+
+    #define CO_TXCAN_SYNC      (coIndex==0 ? (CO_TXCAN_NMT+CO_NO_NMT_MASTER) : (CO_TXCAN_NMT+CO_NO_NMT_MASTER_HCAN3))          /*  index for SYNC message */
+    #define CO_TXCAN_EMERG     (coIndex==0 ? (CO_TXCAN_SYNC+CO_NO_SYNC) : (CO_TXCAN_SYNC+CO_NO_SYNC_HCAN3))              /*  index for Emergency message */
+    #define CO_TXCAN_TPDO      (coIndex==0 ? (CO_TXCAN_EMERG+CO_NO_EMERGENCY) : (CO_TXCAN_EMERG+CO_NO_EMERGENCY_HCAN3))        /*  start index for TPDO messages */
+    #define CO_TXCAN_SDO_SRV   (coIndex==0 ? (CO_TXCAN_TPDO+CO_NO_TPDO) : (CO_TXCAN_TPDO+CO_NO_TPDO_HCAN3))              /*  start index for SDO server message (response) */
+    #define CO_TXCAN_SDO_CLI   (coIndex==0 ? (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER) : (CO_TXCAN_SDO_SRV+CO_NO_SDO_SERVER_HCAN3))     /*  start index for SDO client message (request) */
+    #define CO_TXCAN_HB        (coIndex==0 ? (CO_TXCAN_SDO_CLI+CO_NO_SDO_CLIENT) : (CO_TXCAN_SDO_CLI+CO_NO_SDO_CLIENT_HCAN3))     /*  index for Heartbeat message */
     /* total number of transmitted CAN messages */
-    #define CO_TXCAN_NO_MSGS   coIndex==0 ? (CO_NO_NMT_MASTER+CO_NO_SYNC+CO_NO_EMERGENCY+CO_NO_TPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+1) : \
-																						(CO_NO_NMT_MASTER_HCAN3+CO_NO_SYNC_HCAN3+CO_NO_EMERGENCY_HCAN3+CO_NO_TPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+1)
+    #define CO_TXCAN_NO_MSGS   (coIndex==0 ? (CO_NO_NMT_MASTER+CO_NO_SYNC+CO_NO_EMERGENCY+CO_NO_TPDO+CO_NO_SDO_SERVER+CO_NO_SDO_CLIENT+1) : \
+                                          (CO_NO_NMT_MASTER_HCAN3+CO_NO_SYNC_HCAN3+CO_NO_EMERGENCY_HCAN3+CO_NO_TPDO_HCAN3+CO_NO_SDO_SERVER_HCAN3+CO_NO_SDO_CLIENT_HCAN3+1))
 //    #define CO_TXCAN_SYNC      CO_TXCAN_NMT+CO_NO_NMT_MASTER          /*  index for SYNC message */
 //    #define CO_TXCAN_EMERG    (CO_TXCAN_SYNC+CO_NO_SYNC)              /*  index for Emergency message */
 //    #define CO_TXCAN_TPDO     (CO_TXCAN_EMERG+CO_NO_EMERGENCY)        /*  start index for TPDO messages */
