@@ -674,7 +674,7 @@ CO_NMT_reset_cmd_t CO_process(
             CO->NMT,
             timeDifference_ms,
 						coIndex==0 ? OD_producerHeartbeatTime : OD_producerHeartbeatTime_hcan3,
-						coIndex==0 ? OD_NMTStartup : OD_NMTStartup_hcan3,
+						coIndex==0 ? OD_NMT_Startup : OD_NMTStartup_hcan3,
 						coIndex==0 ? OD_errorRegister : OD_errorRegister_hcan3,
 						coIndex==0 ? OD_errorBehavior : OD_errorBehavior_hcan3,
             timerNext_ms);

@@ -76,7 +76,7 @@ extern "C" {
 
 
     #include "CO_driver.h"
-    #include "CO_OD_HCAN1.h"
+    #include "CO_OD_CC.h"
 		#include "CO_OD_HCAN3.h"
     #include "CO_SDO.h"
     #include "CO_Emergency.h"
